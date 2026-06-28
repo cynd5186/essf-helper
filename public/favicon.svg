@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">eSSF Helper app icon</title>
+  <desc id="desc">Requester-to-analyst bridge document handoff icon.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A6F"/>
+      <stop offset="1" stop-color="#143B8B"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="98" fill="url(#bg)"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#fff" stroke-width="15">
+      <circle cx="135" cy="154" r="31"/>
+      <path d="M87 289V232c0-30 21-48 48-48s48 18 48 48v57"/>
+      <circle cx="377" cy="154" r="31"/>
+      <path d="M329 289V232c0-30 21-48 48-48s48 18 48 48v57"/>
+      <path d="M183 289c25-43 49-58 73-58s48 15 73 58"/>
+    </g>
+    <g stroke="#139CB6" stroke-width="15">
+      <path d="M97 289h99"/>
+      <path d="M315 289h99"/>
+      <path d="M414 289h38v33"/>
+      <path d="M230 256h53M230 288h53"/>
+      <path d="M231 322l12 12 21-26"/>
+    </g>
+    <g stroke="#fff" stroke-width="15">
+      <path d="M211 200h72l28 28v115h-100z"/>
+      <path d="M283 200v28h28"/>
+    </g>
+  </g>
+</svg>
