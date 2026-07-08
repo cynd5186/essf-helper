@@ -26,7 +26,7 @@ const PALETTE = [
   { bg: "#fdecea", fg: "#9a3b2f" },
 ];
 
-const SEP = ", ";
+const SEP = ",";
 const DESC_JOIN = "_";
 
 // ===== PARSER (built by analyzing 382 real eSSF submissions) =================
@@ -389,7 +389,7 @@ export default function SampleBatchEditor({
                 style={C.textarea}
                 value={raw}
                 onChange={(e) => setRaw(e.target.value)}
-                placeholder={"Paste however your samples come, e.g.\n1 - Feed\n2 - Permeate\nor  1P/S, 2P/S\nor  Group A Lysate; Group A Q-eluate"}
+                placeholder={"Paste however your samples come, e.g.\n1350S, 1350P\nor  GFP Harvest P; GFP Harvest S\nor  1 - Clarified Lysate Group A\n    2 - Q-eluate Group A\nor  BR1330_S; BR1330_P"}
               />
               <p style={C.hint}>
                 Paste numbered lists, semicolon/comma lists, descriptive names, or shorthand
