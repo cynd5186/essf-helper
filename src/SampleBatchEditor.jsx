@@ -136,11 +136,12 @@ export default function SampleBatchEditor({
   const [desc2Fill, setDesc2Fill] = useState("");
   const [warn, setWarn] = useState("");
   const [copiedField, setCopiedField] = useState(null);
-  // series generator
+  // series generator — supports MULTIPLE ranges (e.g. 13-32 and 1-14) since sample
+  // numbering varies by run. Grouping/extras (Feed, etc.) are handled afterward in
+  // the table via descriptors, deliberately not encoded here.
   const [genOpen, setGenOpen] = useState(false);
   const [genPrefix, setGenPrefix] = useState("Sample ");
-  const [genStart, setGenStart] = useState(1);
-  const [genEnd, setGenEnd] = useState(10);
+  const [genRanges, setGenRanges] = useState([{ start: 1, end: 10 }]);
 
   const lastClicked = useRef(null);
   const dragging = useRef(false);
@@ -266,16 +267,37 @@ export default function SampleBatchEditor({
   }
 
   // ---- series generator: fills the input box so the user sees the full list ----
-  function generateSeries() {
-    const a = parseInt(genStart, 10), b = parseInt(genEnd, 10);
-    if (isNaN(a) || isNaN(b) || b < a) return;
+  // Walks every range in order. Ranges may be non-continuous (13-32, then 1-14) and
+  // may overlap — duplicates are fine; the user disambiguates with descriptors later.
+  function buildSeriesItems() {
     const items = [];
-    for (let n = a; n <= b; n++) items.push(`${genPrefix}${n}`.trim());
-    // append to whatever is already typed, comma-separated
+    for (const r of genRanges) {
+      const a = parseInt(r.start, 10), b = parseInt(r.end, 10);
+      if (isNaN(a) || isNaN(b) || b < a) continue; // skip invalid ranges, don't fail
+      for (let n = a; n <= b; n++) items.push(`${genPrefix}${n}`.trim());
+    }
+    return items;
+  }
+
+  function generateSeries() {
+    const items = buildSeriesItems();
+    if (!items.length) return;
+    // append to whatever is already typed, comma-separated (readable in the input box;
+    // the final output uses SEP, which is a bare comma)
     const existing = raw.trim();
     const joined = items.join(", ");
     setRaw(existing ? existing + ", " + joined : joined);
     setGenOpen(false); // collapse the generator, return focus to the (now-filled) box
+  }
+
+  function addRange() {
+    setGenRanges((rs) => [...rs, { start: "", end: "" }]);
+  }
+  function removeRange(i) {
+    setGenRanges((rs) => (rs.length === 1 ? rs : rs.filter((_, k) => k !== i)));
+  }
+  function updateRange(i, field, val) {
+    setGenRanges((rs) => rs.map((r, k) => (k === i ? { ...r, [field]: val } : r)));
   }
 
   function validate() {
@@ -398,7 +420,7 @@ export default function SampleBatchEditor({
               <div style={{ marginTop: 10, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
                 <button style={C.btnPrimary} onClick={loadSamples}>Continue</button>
                 <button style={C.linkBtn} onClick={() => setGenOpen(true)}>
-                  Don&rsquo;t know the exact count? Generate a numbered series
+                  Need a numbered series? Generate one (any range)
                 </button>
               </div>
             </>
@@ -407,20 +429,61 @@ export default function SampleBatchEditor({
           {genOpen && (
             <div>
               <p style={{ fontSize: 13, color: "#2c5d8f", fontWeight: 600, margin: "0 0 10px" }}>Generate a numbered series</p>
-              <div style={C.genBar}>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 12.5, color: "#5a6984" }}>Name them</span>
-                <input style={{ ...C.smallInput, width: 120 }} value={genPrefix} onChange={(e) => setGenPrefix(e.target.value)} placeholder="Prefix (e.g. Fraction )" />
-                <span style={{ color: "#8e9bb5" }}>from</span>
-                <input style={{ ...C.smallInput, width: 64 }} type="number" value={genStart} onChange={(e) => setGenStart(e.target.value)} />
-                <span style={{ color: "#8e9bb5" }}>to</span>
-                <input style={{ ...C.smallInput, width: 64 }} type="number" value={genEnd} onChange={(e) => setGenEnd(e.target.value)} />
+                <input style={{ ...C.smallInput, width: 130 }} value={genPrefix}
+                  onChange={(e) => setGenPrefix(e.target.value)} placeholder="Prefix (e.g. Fraction )" />
+                <span style={{ fontSize: 12, color: "#8e9bb5" }}>(applied to every range)</span>
+              </div>
+
+              {genRanges.map((r, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, background: "#f7fafd",
+                  border: "1px solid #e7eef6", borderRadius: 8, padding: "9px 11px", marginBottom: 7 }}>
+                  <span style={{ fontSize: 12.5, color: "#5a6984", whiteSpace: "nowrap" }}>
+                    Range {i + 1} &middot; numbers
+                  </span>
+                  <input style={{ ...C.smallInput, width: 62, textAlign: "center" }} type="number" value={r.start}
+                    onChange={(e) => updateRange(i, "start", e.target.value)} />
+                  <span style={{ fontSize: 12.5, color: "#8e9bb5" }}>through</span>
+                  <input style={{ ...C.smallInput, width: 62, textAlign: "center" }} type="number" value={r.end}
+                    onChange={(e) => updateRange(i, "end", e.target.value)} />
+                  <span style={{ flex: 1 }} />
+                  {genRanges.length > 1 && (
+                    <button onClick={() => removeRange(i)} title="Remove this range"
+                      style={{ background: "transparent", border: "none", color: "#c05c5c", cursor: "pointer", fontSize: 15, padding: "0 4px" }}>
+                      &#10005;
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <button onClick={addRange}
+                style={{ background: "#eef6fb", color: "#139cb6", border: "1px dashed #9fd4e3", borderRadius: 7,
+                  padding: "7px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", marginBottom: 10 }}>
+                + Add another range
+              </button>
+
+              {(() => {
+                const items = buildSeriesItems();
+                const shown = items.length > 6
+                  ? [...items.slice(0, 3), "…", ...items.slice(-2)].join(", ")
+                  : items.join(", ");
+                return (
+                  <p style={C.hint}>
+                    {items.length > 0
+                      ? <>Preview &mdash; <b>{items.length} sample{items.length === 1 ? "" : "s"}</b>: <code>{shown}</code></>
+                      : <>Enter a range to see a preview.</>}
+                    <br />This fills the box above so you can review and edit the full list, then hit Continue.
+                    Add group labels or extra samples (e.g. Feed) there.
+                  </p>
+                );
+              })()}
+
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                 <button style={C.btnPrimary} onClick={generateSeries}>Generate</button>
                 <button style={C.btnGhost} onClick={() => setGenOpen(false)}>Cancel</button>
               </div>
-              <p style={C.hint}>
-                Preview: <code>{genPrefix}{genStart || 1}, {genPrefix}{(parseInt(genStart, 10) || 1) + 1}, … {genPrefix}{genEnd || 10}</code>
-                &nbsp;— this fills the box above so you can review and edit the full list, then hit Continue.
-              </p>
             </div>
           )}
 

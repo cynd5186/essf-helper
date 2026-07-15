@@ -1,0 +1,23 @@
+{
+  "name": "eSSF Helper",
+  "short_name": "eSSF Helper",
+  "description": "Your one-stop shop for the Analytical lab — submit samples, request equipment, check results, and prep your sample lists.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b2a6f",
+  "theme_color": "#0b2a6f",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

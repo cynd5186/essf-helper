@@ -31,6 +31,7 @@ export default function Landing({ onOpenEditor }) {
     foot: { borderTop: "1px solid #dfe7f2", paddingTop: "1rem", marginTop: "0.5rem", textAlign: "center" },
     footLabel: { fontSize: 11.5, color: "#8e9bb5", letterSpacing: "0.3px", margin: 0 },
     footCredit: { fontSize: 10.5, color: "#aab4c6", letterSpacing: "0.2px", margin: "5px 0 0" },
+    footVersion: { fontSize: 9.5, color: "#c2ccd9", letterSpacing: "0.2px", margin: "3px 0 0" },
     sibs: { fontSize: 12, display: "flex", justifyContent: "center", alignItems: "center", gap: 6, flexWrap: "wrap" },
     sibLink: { color: "#139cb6", textDecoration: "none" },
     sep: { fontSize: 10, color: "#8e9bb5" },
@@ -118,7 +119,8 @@ export default function Landing({ onOpenEditor }) {
         {/* FOOTER */}
         <div style={S.foot}>
           <p style={S.footLabel}>Part of the eSSF analytical system</p>
-          <p style={S.footCredit}>Created and developed by C. Gracieux-Singleton · 2026</p>
+          <p style={S.footCredit}>C. Gracieux-Singleton · 2025</p>
+          <p style={S.footVersion}>v1.1 · updated 2026-07-07</p>
         </div>
       </div>
     </div>
